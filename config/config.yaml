@@ -41,7 +41,7 @@ app:
 # ===============================================================
 schedule:
   enabled: true                         # 是否启用调度系统
-  preset: "morning_evening"             # 预设模板名称（见上方说明）
+  preset: "office_hours"                # 预设模板名称（见上方说明）
 
 
 # ===============================================================
@@ -63,18 +63,12 @@ platforms:
       name: "华尔街见闻"
     - id: "thepaper"
       name: "澎湃新闻"
-    - id: "bilibili-hot-search"
-      name: "bilibili 热搜"
     - id: "cls-hot"
       name: "财联社热门"
     - id: "ifeng"
       name: "凤凰网"
-    - id: "tieba"
-      name: "贴吧"
     - id: "weibo"
       name: "微博"
-    - id: "douyin"
-      name: "抖音"
     - id: "zhihu"
       name: "知乎"
 
@@ -104,7 +98,7 @@ rss:
   freshness_filter:
     enabled: true                     # 是否启用新鲜度过滤（默认启用）
 
-    max_age_days: 1                   # 最大文章年龄（天）
+    max_age_days: 3                   # 最大文章年龄（天）
                                       # - 正整数：只推送 N 天内的文章
                                       # - 0：禁用过滤，推送所有文章
 
@@ -113,9 +107,50 @@ rss:
   # - 正整数：覆盖全局设置，只推送此天数内的文章
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
+    - id: "openai-news"
+      name: "OpenAI News"
+      url: "https://openai.com/news/rss.xml"
+      max_age_days: 5
+
+    - id: "google-ai"
+      name: "Google AI Blog"
+      url: "https://blog.google/technology/ai/rss/"
+      max_age_days: 5
+
+    - id: "hugging-face-blog"
+      name: "Hugging Face Blog"
+      url: "https://huggingface.co/blog/feed.xml"
+      max_age_days: 4
+
+    - id: "arxiv-cs-ai"
+      name: "arXiv cs.AI"
+      url: "http://export.arxiv.org/rss/cs.AI"
+      max_age_days: 5
+
+    - id: "arxiv-cs-lg"
+      name: "arXiv cs.LG"
+      url: "http://export.arxiv.org/rss/cs.LG"
+      max_age_days: 5
+
+    - id: "securityweek"
+      name: "SecurityWeek"
+      url: "https://www.securityweek.com/feed/"
+      max_age_days: 3
+
+    - id: "cisa-advisories"
+      name: "CISA Advisories"
+      url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+      max_age_days: 7
+
+    - id: "nist-news"
+      name: "NIST News"
+      url: "https://www.nist.gov/news-events/news/rss.xml"
+      max_age_days: 7
+
     - id: "hacker-news"
       name: "Hacker News"
       url: "https://hnrss.org/frontpage"
+      max_age_days: 2
 
     - id: "ruanyifeng"
       name: "阮一峰的网络日志"
@@ -126,6 +161,7 @@ rss:
     - id: "yahoo-finance"
       name: "雅虎财经"
       url: "https://finance.yahoo.com/news/rssindex"
+      max_age_days: 3
 
     # 自定义源示例
     # - id: "custom-feed"
@@ -164,7 +200,7 @@ report:
 
   rank_threshold: 5                   # 排名高亮阈值（影响展示强调，不改变抓取范围）
 
-  max_news_per_keyword: 0             # 每个关键词/标签最大显示数量（0=不限制，仅影响展示裁剪）
+  max_news_per_keyword: 4             # 每个关键词/标签最大显示数量（0=不限制，仅影响展示裁剪）
 
 
 # ===============================================================
@@ -207,7 +243,7 @@ ai_filter:
   batch_interval: 2                       # 分批处理时，每批之间的等待时间（秒）
                                           # 避免频繁调用 API 触发限流，设为 0 则不等待
 
-  min_score: 0.7                          # 推送最低分数阈值（0.0 ~ 1.0）
+  min_score: 0.78                         # 推送最低分数阈值（0.0 ~ 1.0）
                                           # 0 = 不过滤；值越高越严格（推荐先用 0.5~0.7）
 
   # 兴趣描述文件
@@ -215,11 +251,12 @@ ai_filter:
   # 这里设置的是“全局默认”，可被 timeline.yaml 时段内的 interests_file 覆盖
   # 如需使用自定义文件，将文件放入 config/custom/ai/ 目录，然后指定文件名：
   # interests_file: "finance.txt"    # → 加载 config/custom/ai/finance.txt
+  interests_file: "ceo_ruijie.txt"
 
   # 全量重分类触发阈值（0~1）
   # change_ratio >= 此值：全量重分类；否则增量更新
   # 0.0 最准确最费；1.0 最省但可能陈旧；0.6 是平衡点
-  reclassify_threshold: 0.6
+  reclassify_threshold: 0.45
 
   # 以下提示词模板一般无需修改（不建议动）
 
@@ -251,11 +288,11 @@ display:
   #   1. 在此列表中
   #   2. 下方 regions 中对应开关为 true
   region_order:
-    - new_items                           # 1️⃣ 新增热点区域
+    - ai_analysis                         # 1️⃣ AI 分析区域
     - hotlist                             # 2️⃣ 热榜区域（关键词匹配 / AI 智能筛选）
     - rss                                 # 3️⃣ RSS 订阅区域
     - standalone                          # 4️⃣ 独立展示区
-    - ai_analysis                         # 5️⃣ AI 分析区域
+    - new_items                           # 5️⃣ 新增热点区域
 
   # 推送区域开关
   # 控制各区域是否启用（配合 region_order 使用）
@@ -278,9 +315,9 @@ display:
   #   - AI 分析：由 ai_analysis.include_standalone 开关控制，将完整数据送入 AI 做深度分析
   # 两者共享此处的平台/RSS 配置，但开关互相独立（可只开 AI 分析、不推送展示）
   standalone:
-    platforms: ["zhihu", "wallstreetcn-hot"]     # 热榜平台 ID 列表（如 ["zhihu", "weibo"]）
-    rss_feeds: []                     # RSS 源 ID 列表（如 ["hacker-news"]）
-    max_items: 20                     # 每个源最多展示条数（0=不限制）
+    platforms: ["wallstreetcn-hot", "cls-hot", "zhihu"]     # 热榜平台 ID 列表（如 ["zhihu", "weibo"]）
+    rss_feeds: ["cisa-advisories", "nist-news", "google-ai"]                     # RSS 源 ID 列表（如 ["hacker-news"]）
+    max_items: 10                     # 每个源最多展示条数（0=不限制）
 
 
 # ===============================================================
@@ -479,7 +516,7 @@ ai_analysis:
   language: "Chinese"
 
   # 提示词配置文件路径（相对于 config 目录）
-  prompt_file: "ai_analysis_prompt.txt"
+  prompt_file: "custom/ai/ceo_ai_analysis_prompt.txt"
 
   # AI 分析模式（独立于推送报告模式）
   # 可选值:
@@ -495,7 +532,7 @@ ai_analysis:
   mode: "follow_report"
 
   # 分析内容配置
-  max_news_for_analysis: 150        # 热榜+RSS 合计参与分析的新闻数量上限（控制成本关键项）
+  max_news_for_analysis: 120        # 热榜+RSS 合计参与分析的新闻数量上限（控制成本关键项）
                                     # 热榜优先占用配额，RSS 使用剩余配额；独立展示区不受此限制
                                     # 推送消息顶部会显示实际的 AI 分析数供参考
 
@@ -507,7 +544,7 @@ ai_analysis:
                                       # GitHub Action 部署默认推送约 20 次（每小时推送一次）， 约 0.1 元/天
                                       # Docker 部署默认推送 48 次(每半小时推送一次)， 约 0.2 元/天
 
-  include_rss: false                # 是否包含 RSS 内容进行分析
+  include_rss: true                 # 是否包含 RSS 内容进行分析
   
   include_standalone: true          # 是否将独立展示区数据纳入 AI 分析
                                     # 数据源列表来自 display.standalone.platforms / display.standalone.rss_feeds
